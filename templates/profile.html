@@ -1,0 +1,23 @@
+<html>  
+ <head>  
+  <title>Profile</title>  
+ </head>  
+ <body> 
+  <p> Sesión con el usuario:  {{ script_alert|safe }} </p>
+  <p>{{ av_local_value|safe }}</p>
+  <p>  <form id = "average_local" method = "POST" action = "/av_local">   
+          <input type = "submit" value = "Obtener media de la base de datos local"></td></tr>  
+     </form> 
+  </p>
+  <p>{{ av_remote_value|safe }}</p>
+  <p>  <form id = "average_remote" method = "POST" action = "/av_remote">   
+          <input type = "submit" value = "Obtener media de la base de datos on-line"></td></tr>  
+     </form> 
+  </p>
+  <p>  <form id = "external_graphs" method = "POST" action = "/external_graphs">   
+          <input type = "submit" value = "Graficas externas"></td></tr>  
+     </form> 
+  </p>
+  <p><a href = "/logout">Logout</a></p> 
+ </body>  
+ </html> 
