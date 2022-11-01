@@ -21,7 +21,6 @@ def set_database_content(content, db, cnt):
 	db.json().set("Counter", Path.root_path(), {"cnt" : cnt})
 
 	os.system('curl "https://api.thingspeak.com/update?api_key=UJUT54QP7JYM2WQB&field1=' +  content["EUR/USD_value"].split(",")[0] + '.' + content["EUR/USD_value"].split(",")[1] + '"')
-	os.system('curl "https://thingspeak.com/channels/1909196/charts/1?bgcolor=%23ffffff&color=%23d62020&dynamic=true&results=60&type=line&update=15" -o /home/xubuntu/uni/computacion/p1/code/env/app-code/templates/graph.html')
 
 def main():
 	db = redis.Redis(host="localhost", port=6379, db=0)

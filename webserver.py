@@ -35,7 +35,7 @@ def success_reg():
     else:
         passwd_hashed = hashlib.sha256(bytearray(request.form["pass"], "utf8")).hexdigest()
         print(passwd_hashed)
-        db_users.json().set(request.form["username"], Path.root_path(), {"email" : request.form["email"], "password" : passwd_hashed})
+        db_users.json().set(request.form["username"], Path.root_path(), {"email" : request.form["email"], "password" : passwd_hashed, "measures_local" : 0, "measures_online" : 0})
         return redirect("http://"+server_ip+":"+str(server_port)+"/", code=302)
 
 @app.route('/login')
@@ -66,7 +66,10 @@ def logout():
 @app.route('/profile')
 def profile():
     if "username" in session:
-        return render_template("profile.html", script_alert=session["username"])
+        json_file = db_users.json().get(session["username"], Path.root_path())
+        return render_template("profile.html", script_alert=session["username"],
+            num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
+            num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
     else:
         return render_template("login.html")
 
@@ -78,8 +81,14 @@ def av_local():
         measure = db_measures.json().get("Measure_"+str(i), Path.root_path())
         measure = float(measure["EUR/USD_value"].split(",")[0] + "." + measure["EUR/USD_value"].split(",")[1])
         values.append(measure)
-    average = get_average(values)  
-    return render_template("profile.html", av_local_value="Valor medio de las medidas de la base de datos local: " + str(average))
+    average = get_average(values) 
+
+    json_file = db_users.json().get(session["username"], Path.root_path())
+    json_file["measures_local"] = json_file["measures_local"] +1
+    db_users.json().set(session["username"], Path.root_path(), json_file)
+    return render_template("profile.html", av_local_value="Valor medio de las medidas de la base de datos local: " + str(average),
+        num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
+        num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
 
 @app.route('/av_remote', methods=['POST'])
 def av_remote():
@@ -91,7 +100,13 @@ def av_remote():
     for i in jsonobj["feeds"]:
         values.append(float(i["field1"]))
     average = get_average(values) 
-    return render_template("profile.html", av_remote_value="Valor medio de las medidas de la base de datos local: " + str('%.4f'%(average)))
+
+    json_file = db_users.json().get(session["username"], Path.root_path())
+    json_file["measures_online"] = json_file["measures_online"] +1
+    db_users.json().set(session["username"], Path.root_path(), json_file)
+    return render_template("profile.html", av_local_value="Valor medio de las medidas de la base de datos remota: " + str('%.4f'%(average)),
+        num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
+        num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
 
 @app.route('/external_graphs', methods=['POST'])
 def external_graphs():
