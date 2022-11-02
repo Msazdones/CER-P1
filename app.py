@@ -6,8 +6,8 @@ from redis.commands.json.path import Path
 from datetime import datetime
 
 def download_and_parse_file():
-	os.system('curl https://es.investing.com/currencies/eur-usd -o /home/xubuntu/uni/computacion/p1/code/env/app-code/page_data/data')
-	f = open("/home/xubuntu/uni/computacion/p1/code/env/app-code/page_data/data", "r")
+	os.system('curl https://es.investing.com/currencies/eur-usd -o /home/cer/computacion/p1/code/env/app-code/page_data/data')
+	f = open("/home/cer/computacion/p1/code/env/app-code/page_data/data", "r")
 	f = str(f.read())
 	value = re.findall('[0-9,]+', str(re.findall('data-test="instrument-price-last"[0-9,<>]*', f)))[0]
 	return value

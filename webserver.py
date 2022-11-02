@@ -51,6 +51,7 @@ def success_log():
     if(user):
         passwd_hashed = hashlib.sha256(bytearray(request.form["pass"], "utf8")).hexdigest()
         if (user["password"] == passwd_hashed):
+            session["umbral2_vals"] = ""
             session["username"] = request.form["username"]
             return redirect("http://"+server_ip+":"+str(server_port)+"/profile", code=302)
         else:
@@ -92,8 +93,8 @@ def av_local():
 
 @app.route('/av_remote', methods=['POST'])
 def av_remote():
-    os.system('curl "https://api.thingspeak.com/channels/1909196/fields/1.json?result=2" -o /home/xubuntu/uni/computacion/p1/code/env/app-code/page_data/jsondata.json')
-    f = open("/home/xubuntu/uni/computacion/p1/code/env/app-code/page_data/jsondata.json", "r")
+    os.system('curl "https://api.thingspeak.com/channels/1909196/fields/1.json?result=2" -o /home/cer/computacion/p1/code/env/app-code/page_data/jsondata.json')
+    f = open("/home/cer/computacion/p1/code/env/app-code/page_data/jsondata.json", "r")
     f = str(f.read())
     jsonobj = json.loads(f)
     values = []
