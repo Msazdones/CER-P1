@@ -51,7 +51,6 @@ def success_log():
     if(user):
         passwd_hashed = hashlib.sha256(bytearray(request.form["pass"], "utf8")).hexdigest()
         if (user["password"] == passwd_hashed):
-            session["umbral2_vals"] = ""
             session["username"] = request.form["username"]
             return redirect("http://"+server_ip+":"+str(server_port)+"/profile", code=302)
         else:
@@ -68,7 +67,7 @@ def logout():
 def profile():
     if "username" in session:
         json_file = db_users.json().get(session["username"], Path.root_path())
-        return render_template("profile.html", script_alert=session["username"], umbral2list =  session["umbral2_vals"],
+        return render_template("profile.html", script_alert=session["username"],
             num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
             num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
     else:
@@ -142,7 +141,7 @@ def umbral_2():
         session["umbral2_vals"] = ""
         json_file = db_users.json().get(session["username"], Path.root_path())  
         return render_template("profile.html", script_alert=session["username"], 
-            umbral2='<script>$(document).ready(function(){ var ajaxDelay = 10000;setInterval(function(){var jqxhr = $.get( "umbral_2_val", function(data) {if(data=="fin"){window.location.href = "/profile";}else{document.getElementById("umbral_2_value").innerHTML = document.getElementById("umbral_2_value").innerHTML + data;}});}, ajaxDelay);});</script>',
+            umbral2='<script>$(document).ready(function(){ var ajaxDelay = 10000;setInterval(function(){var jqxhr = $.get( "umbral_2_val", function(data) {if(data=="fin"){window.location.href = "/umbral2_list";}else{document.getElementById("umbral_2_value").innerHTML = document.getElementById("umbral_2_value").innerHTML + data;}});}, ajaxDelay);});</script>',
             num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
             num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
     else:
@@ -173,6 +172,16 @@ def umbral_2_val():
                 return ""
         else:
             return "fin"
+    else:
+        return render_template("login.html")
+
+@app.route('/umbral2_list')
+def umbral2_list():
+    if "username" in session:
+        json_file = db_users.json().get(session["username"], Path.root_path())
+        return render_template("profile.html", script_alert=session["username"], umbral2list =  session["umbral2_vals"],
+            num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
+            num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
     else:
         return render_template("login.html")
 
