@@ -1,6 +1,9 @@
 <html>  
  <head>  
   <title>Profile</title>  
+  <script src="../static/script.js"></script>
+  <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
+  {{ umbral2|safe }}
  </head>  
  <body> 
   <p> Sesión con el usuario:  {{ script_alert|safe }} </p>
@@ -18,7 +21,19 @@
   </p>
   <p>  <form id = "external_graphs" method = "POST" action = "/external_graphs">   
           <input type = "submit" value = "Graficas externas"></td></tr>  
-     </form> 
+       </form> 
+  </p>
+  <p>{{ values_umbral_1|safe }}</p>
+  <p>  <form id = "umbral_1" method = "POST" action = "/umbral_1">
+          <input type="text" name="value_umbral1">   
+          <input type = "submit" value = "umbral_submit_1"></td></tr>  
+       </form> 
+  </p>
+  <p id = "umbral_2_value">{{ umbral2list|safe }}</p> 
+  <p>  <form id = "umbral_2" method = "POST" action = "/umbral_2">
+          <input type="text" name="value_umbral2">   
+          <input type = "submit" value = "umbral_submit_2"></td></tr>  
+       </form> 
   </p>
   <p><a href = "/logout">Logout</a></p> 
  </body>  

@@ -67,7 +67,7 @@ def logout():
 def profile():
     if "username" in session:
         json_file = db_users.json().get(session["username"], Path.root_path())
-        return render_template("profile.html", script_alert=session["username"],
+        return render_template("profile.html", script_alert=session["username"], umbral2list =  session["umbral2_vals"],
             num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
             num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
     else:
@@ -86,7 +86,7 @@ def av_local():
     json_file = db_users.json().get(session["username"], Path.root_path())
     json_file["measures_local"] = json_file["measures_local"] +1
     db_users.json().set(session["username"], Path.root_path(), json_file)
-    return render_template("profile.html", av_local_value="Valor medio de las medidas de la base de datos local: " + str(average),
+    return render_template("profile.html", script_alert=session["username"], av_local_value="Valor medio de las medidas de la base de datos local: " + str(average),
         num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
         num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
 
@@ -104,7 +104,7 @@ def av_remote():
     json_file = db_users.json().get(session["username"], Path.root_path())
     json_file["measures_online"] = json_file["measures_online"] +1
     db_users.json().set(session["username"], Path.root_path(), json_file)
-    return render_template("profile.html", av_local_value="Valor medio de las medidas de la base de datos remota: " + str('%.4f'%(average)),
+    return render_template("profile.html", script_alert=session["username"], av_local_value="Valor medio de las medidas de la base de datos remota: " + str('%.4f'%(average)),
         num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
         num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
 
@@ -114,6 +114,66 @@ def external_graphs():
         return render_template("graph.html")
     else:
         return render_template("login.html")   
+
+@app.route('/umbral_1', methods=['POST'])
+def umbral_1():
+    if "username" in session:
+        cnt = db_measures.json().get("Counter", Path.root_path())
+        values = []
+        string=""
+        for i in range(0, cnt["cnt"]+1):
+            measure = db_measures.json().get("Measure_"+str(cnt["cnt"]-i), Path.root_path())
+            measure = float(measure["EUR/USD_value"].split(",")[0] + "." + measure["EUR/USD_value"].split(",")[1])
+            
+            if ((measure > float(request.form["value_umbral1"])) and (len(values) < 5)):
+                values.append(measure)
+                string = string + str(measure) + ", "
+        return render_template("profile.html", script_alert=session["username"], values_umbral_1= "Ultimos valores: " + string[0:len(string)-1])
+    else:
+        return render_template("login.html")
+
+@app.route('/umbral_2', methods=['POST'])
+def umbral_2():
+    if "username" in session:  
+        session["cnt_umbral2"] = db_measures.json().get("Counter", Path.root_path())["cnt"]
+        session["umbral2"] = request.form["value_umbral2"]
+        session["max_umbral_cnt"] = 5
+        session["umbral2_vals"] = ""
+        json_file = db_users.json().get(session["username"], Path.root_path())  
+        return render_template("profile.html", script_alert=session["username"], 
+            umbral2='<script>$(document).ready(function(){ var ajaxDelay = 10000;setInterval(function(){var jqxhr = $.get( "umbral_2_val", function(data) {if(data=="fin"){window.location.href = "/profile";}else{document.getElementById("umbral_2_value").innerHTML = document.getElementById("umbral_2_value").innerHTML + data;}});}, ajaxDelay);});</script>',
+            num_measures_local= "Numero de medidas realizadas local: " + str(json_file["measures_local"]),
+            num_measures_online= "Numero de medidas realizadas online: " + str(json_file["measures_online"]))
+    else:
+        return render_template("login.html")
+
+cnt_global = 0
+@app.route('/umbral_2_val')
+def umbral_2_val():
+    if "username" in session:
+        print(session["max_umbral_cnt"])
+        if (session["max_umbral_cnt"] > 0):
+            cnt = db_measures.json().get("Counter", Path.root_path())["cnt"]
+            print (session["cnt_umbral2"], cnt)
+            
+            if(cnt > session["cnt_umbral2"]):
+                measure = db_measures.json().get("Measure_"+str(cnt), Path.root_path())
+                measure = float(measure["EUR/USD_value"].split(",")[0] + "." + measure["EUR/USD_value"].split(",")[1])
+                session["cnt_umbral2"] = session["cnt_umbral2"]+1
+                if(float(session["umbral2"]) > float(measure)):
+                    return ""
+                else:
+                    measure = str(measure) + ", "
+                    session["umbral2_vals"] = session["umbral2_vals"] +  measure
+                    session["max_umbral_cnt"] = session["max_umbral_cnt"] -1
+                    return measure
+            else:
+                session["cnt_umbral2"] = session["cnt_umbral2"]+1
+                return ""
+        else:
+            return "fin"
+    else:
+        return render_template("login.html")
 
 def get_average(values):
     result = 0
