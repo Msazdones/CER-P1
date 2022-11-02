@@ -161,6 +161,7 @@ def umbral_2_val():
                 measure = float(measure["EUR/USD_value"].split(",")[0] + "." + measure["EUR/USD_value"].split(",")[1])
                 session["cnt_umbral2"] = session["cnt_umbral2"]+1
                 if(float(session["umbral2"]) > float(measure)):
+                    session["cnt_umbral2"] = session["cnt_umbral2"]+1
                     return ""
                 else:
                     measure = str(measure) + ", "
