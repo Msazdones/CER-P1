@@ -168,7 +168,6 @@ def umbral_2_val():
                     session["max_umbral_cnt"] = session["max_umbral_cnt"] -1
                     return measure
             else:
-                session["cnt_umbral2"] = session["cnt_umbral2"]+1
                 return ""
         else:
             return "fin"
